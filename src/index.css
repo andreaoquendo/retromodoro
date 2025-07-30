@@ -1,6 +1,6 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  font-family: "Orbitron", sans-serif;
+  line-height: 1;
   font-weight: 400;
 
   color-scheme: light dark;
@@ -28,6 +28,7 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background: linear-gradient(#0f3444, #251a49);
 }
 
 h1 {
@@ -47,11 +48,11 @@ button {
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: 0;
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 0;
 }
 
 @media (prefers-color-scheme: light) {
@@ -66,3 +67,7 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* input[type="number"] {
+  color: #ccffff;
+} */
