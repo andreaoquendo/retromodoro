@@ -1,14 +1,16 @@
+import { useTimerContext } from "../../context/TimerContext";
 import { Container, Cycles, Session } from "./SessionsCounter.styles";
 
 const SessionsCounter = () => {
+  const { totalSessionsCount, cyclesCount } = useTimerContext();
   return (
     <Container>
       <Session>
-        <span>1</span>
+        <span>{totalSessionsCount || "0"}</span>
         Sessions
       </Session>
       <Cycles>
-        <span>0</span>
+        <span>{cyclesCount | "0"}</span>
         Cycles
       </Cycles>
     </Container>

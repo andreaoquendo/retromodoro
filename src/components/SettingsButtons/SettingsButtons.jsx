@@ -45,7 +45,12 @@ const SettingsButtons = () => {
         {isVolumeUp ? <VolumeUpOutlinedIcon /> : <VolumeOffOutlinedIcon />}
         Sound
       </CustomButton>
-      <Settings open={isSettingsOpen} />
+      <Settings
+        open={isSettingsOpen}
+        onSubmit={() => {
+          setIsSettingsOpen(false);
+        }}
+      />
     </Container>
   );
 };

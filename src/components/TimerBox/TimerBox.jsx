@@ -10,17 +10,21 @@ import {
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import ReplayRoundedIcon from "@mui/icons-material/ReplayRounded";
 import PauseIcon from "@mui/icons-material/Pause";
-const TimerBox = ({
-  minutes,
-  seconds,
-  isTimerRunning,
-  stopTimer,
-  startTimer,
-  restartTimer,
-}) => {
+import { useTimerContext } from "../../context/TimerContext";
+
+const TimerBox = () => {
+  const {
+    minutes,
+    seconds,
+    startTimer,
+    stopTimer,
+    restartTimer,
+    isTimerRunning,
+    currentTimerLabel,
+  } = useTimerContext();
   return (
     <Container>
-      <Title>Work Session</Title>
+      <Title>{currentTimerLabel}</Title>
       <TimerText>
         {minutes}:{String(seconds).padStart(2, "0")}
       </TimerText>

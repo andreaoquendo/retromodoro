@@ -1,6 +1,10 @@
-import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useRef } from "react";
 import styled from "styled-components";
+import { DEFAULT_VALUES, STORAGE_KEYS } from "../../constants/storageKeys";
+import { storage } from "../../lib/storage";
+import { useTimer } from "../../hooks/useTimer";
+import { useTimerContext } from "../../context/TimerContext";
 
 const Background = styled(motion.div)`
   position: absolute;
@@ -8,9 +12,7 @@ const Background = styled(motion.div)`
   left: 0;
   width: 100%;
   height: 100%;
-
   background-color: rgba(0, 0, 0, 0.5);
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -18,20 +20,12 @@ const Background = styled(motion.div)`
 
 const Container = styled(motion.div)`
   font-family: "Orbitron", monospace;
-  /* position: absolute; */
-  /* top: 50%;
-  left: 50%; */
-  /* transform: translate(-50%, -50%) !important; */
-
   background-color: #04071a;
   padding: 24px;
-
   border: 1px solid #ff4dd24d;
-
   display: flex;
   flex-direction: column;
   border-radius: 0.5rem;
-
   opacity: 1;
 `;
 
@@ -39,7 +33,6 @@ const CustomInput = styled.input`
   border: 0;
   outline: 0;
   box-sizing: border-box;
-
   &:hover,
   &:focus {
     border: 0;
@@ -53,6 +46,7 @@ const SettingsField = ({
   name,
   inputDescription,
   placeholder = 25,
+  defaultValue,
 }) => {
   return (
     <div
@@ -67,9 +61,11 @@ const SettingsField = ({
         {inputDescription}
       </label>
       <CustomInput
+        id={inputId}
         type={type}
         name={name}
         placeholder={placeholder}
+        defaultValue={defaultValue}
         style={{
           marginTop: "8px",
           width: "100%",
@@ -84,13 +80,36 @@ const SettingsField = ({
   );
 };
 
-const Settings = ({ open, onSubmit: onSubmitForm }) => {
-  const [rangeSession, setRangeSession] = useState(0);
+const Settings = ({ open, onSubmit: onSubmitForm = null }) => {
+  const formRef = useRef(null);
+  const { restartTimer } = useTimerContext();
 
-  console.log(open);
-  const onSubmit = () => {
-    localStorage.setItem("sessionRange", rangeSession * 60);
-    onSubmitForm();
+  const getStoredValue = (key, defaultVal = 0) => {
+    const val = storage.get(key);
+    return val ? Number(val) / 60 : defaultVal; // convertendo de segundos para minutos
+  };
+
+  const getStoredValueWithoutMinutes = (key, defaultVal = 0) => {
+    const val = storage.get(key);
+    return val ? Number(val) : defaultVal; // convertendo de segundos para minutos
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const data = new FormData(formRef.current);
+
+    const sessionRange = data.get("work-session");
+    const shortBreak = data.get("short-break");
+    const longBreak = data.get("long-break");
+    const sessionsUntilBreak = data.get("sessions-until-break");
+
+    storage.set(STORAGE_KEYS.SESSION_RANGE, Number(sessionRange) * 60);
+    storage.set(STORAGE_KEYS.SHORT_BREAK, Number(shortBreak) * 60);
+    storage.set(STORAGE_KEYS.LONG_BREAK, Number(longBreak) * 60);
+    storage.set(STORAGE_KEYS.SESSIONS_UNTIL_BREAK, Number(sessionsUntilBreak));
+
+    restartTimer();
+    onSubmitForm?.();
   };
 
   return (
@@ -108,7 +127,7 @@ const Settings = ({ open, onSubmit: onSubmitForm }) => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0 }}
             >
-              <form onSubmit={onSubmit}>
+              <form ref={formRef} onSubmit={handleSubmit}>
                 <h2
                   style={{
                     textTransform: "uppercase",
@@ -131,24 +150,40 @@ const Settings = ({ open, onSubmit: onSubmitForm }) => {
                     name="work-session"
                     inputDescription="Work Session (in minutes)"
                     placeholder={25}
+                    defaultValue={getStoredValue(
+                      STORAGE_KEYS.SESSION_RANGE,
+                      DEFAULT_VALUES.SESSION_RANGE
+                    )}
                   />
                   <SettingsField
                     inputId="short-break"
                     name="short-break"
                     inputDescription="Short Break (in minutes)"
                     placeholder={5}
+                    defaultValue={getStoredValue(
+                      STORAGE_KEYS.SHORT_BREAK,
+                      DEFAULT_VALUES.SHORT_BREAK
+                    )}
                   />
                   <SettingsField
                     inputId="long-break"
                     name="long-break"
                     inputDescription="Long Break (in minutes)"
-                    placeholder={25}
+                    placeholder={15}
+                    defaultValue={getStoredValue(
+                      STORAGE_KEYS.LONG_BREAK,
+                      DEFAULT_VALUES.LONG_BREAK
+                    )}
                   />
                   <SettingsField
                     inputId="sessions-until-break"
                     name="sessions-until-break"
-                    inputDescription="Sessions until break"
+                    inputDescription="Sessions until long break"
                     placeholder={4}
+                    defaultValue={getStoredValueWithoutMinutes(
+                      STORAGE_KEYS.SESSIONS_UNTIL_BREAK,
+                      DEFAULT_VALUES.SESSIONS_UNTIL_BREAK
+                    )}
                   />
                 </div>
                 <div
@@ -172,6 +207,8 @@ const Settings = ({ open, onSubmit: onSubmitForm }) => {
                     Save
                   </button>
                   <button
+                    type="button"
+                    onClick={onSubmitForm}
                     style={{
                       width: "100%",
                       borderRadius: "0.5rem",
