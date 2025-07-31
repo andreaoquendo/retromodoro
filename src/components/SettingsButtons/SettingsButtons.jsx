@@ -5,6 +5,7 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import VolumeUpOutlinedIcon from "@mui/icons-material/VolumeUpOutlined";
 import VolumeOffOutlinedIcon from "@mui/icons-material/VolumeOffOutlined";
 import styled from "styled-components";
+import { useTimerContext } from "../../context/TimerContext";
 
 const CustomButton = styled.button`
   display: flex;
@@ -24,6 +25,7 @@ const SettingsButtons = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const [isVolumeUp, setIsVolumeUp] = useState(false);
+  const { soundStatus } = useTimerContext();
 
   return (
     <Container>
@@ -39,6 +41,7 @@ const SettingsButtons = () => {
       <CustomButton
         onClick={() => {
           setIsVolumeUp((prev) => !prev);
+          soundStatus();
         }}
         style={{ color: "#ff9933" }}
       >

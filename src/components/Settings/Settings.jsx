@@ -3,7 +3,6 @@ import { useRef } from "react";
 import styled from "styled-components";
 import { DEFAULT_VALUES, STORAGE_KEYS } from "../../constants/storageKeys";
 import { storage } from "../../lib/storage";
-import { useTimer } from "../../hooks/useTimer";
 import { useTimerContext } from "../../context/TimerContext";
 
 const Background = styled(motion.div)`

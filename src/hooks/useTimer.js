@@ -15,6 +15,8 @@ export const useTimer = () => {
   const sessionsCount = useRef(0);
   const intervalRef = useRef(null);
 
+  const sound = new Audio("./end-session-sound.wav");
+
   const [totalSessionsCount, setTotalSessionsCount] = useState(
     totalSessionsInitial || 0
   );
@@ -24,6 +26,10 @@ export const useTimer = () => {
 
   const minutes = Math.floor(timer / 60);
   const seconds = timer % 60;
+
+  function soundStatus() {
+    sound.muted = !sound.muted;
+  }
 
   const restartTimer = useCallback(() => {
     setTimer(storage.get(STORAGE_KEYS.SESSION_RANGE));
@@ -53,6 +59,8 @@ export const useTimer = () => {
         setTimer(storage.get(storageKey));
         setCurrentTimerLabel(label);
       };
+
+      sound.play();
 
       if (currentTimerLabel == "work") {
         const sessores = storage.get(STORAGE_KEYS.SESSIONS_UNTIL_BREAK);
@@ -119,5 +127,6 @@ export const useTimer = () => {
     currentTimerLabel,
     totalSessionsCount,
     cyclesCount,
+    soundStatus,
   };
 };
